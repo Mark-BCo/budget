@@ -2,6 +2,7 @@ const User = require('../model/user')
 const watchSchema = require('../model/watch')
 const bcrypt = require('bcrypt')
 const asyncHandler = require('express-async-handler');
+const upload = require('../middleware/multer')
 
 // POST /create-user
 // Async function to create a new user
@@ -137,6 +138,51 @@ const updateEmail = asyncHandler(async (req, res) => {
 
 })
 
+// PATCH /update-userimage
+// Async function to update user profile image
+const updateUserImage = asyncHandler(async (req, res) => {
+
+    // File Upload promise
+    const file = await new Promise((resolve, reject) => {
+       upload.single('userImage')(req, res, (err) => {
+           if (err) {
+               reject(err);
+           } else {
+               resolve(req.file);
+           }
+       });
+   });
+
+   try {
+
+       const { id } = req.body;
+
+       console.log(id)
+
+       const user = await User.findById(id)
+
+       console.log(user)
+
+       if (!user) {
+           return res.status(404).json({ message: 'User not found' });
+       }
+
+       user.userImage = {
+           data: file.buffer,
+           contentType: file.mimetype,
+       }
+
+       await user.save();
+
+       res.json({ message: 'Profile picture added' });
+
+   } catch (error) {
+       console.error("Error updating profile picture", error);
+       res.status(500).json({ message: 'Internal server error' });
+   }
+
+})
+
 // DELETE /delete-user
 // Async function to delete a user by ID - deletes all change logs associated with user
 const deleteUser = async (req, res) => {
@@ -183,10 +229,13 @@ const getAllUsers = async (req, res) => {
     res.json(users)
 }
 
+
+
 module.exports = {
     newUser,
     updateUserName,
     updateEmail,
+    updateUserImage,
     deleteUser,
-    getAllUsers
+    getAllUsers,
 }

@@ -21,7 +21,12 @@ Backend server for budget app
 
 ## Status
 
-[partial] user routes
+[x] Create a user profile
+[] Create user roles
+[x] Update a user profile
+[x] Create user routes
+[x] Get all users
+[] Get a single user
 [] json webtokens
 
 
