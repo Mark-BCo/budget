@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const userc = require('../control/userc')
-const upload = require('../middleware/multer')
 
 router.route('/create-user').post(userc.newUser)
 
@@ -10,6 +9,7 @@ router.route('/update-email').patch(userc.updateEmail)
 router.route('/update-image').patch(userc.updateUserImage)
 
 router.route('/delete-user').delete(userc.deleteUser)
+router.route('/delete-all-users').delete(userc.deleteAllUsers)
 
 router.route('/get-users').get(userc.getAllUsers)
 

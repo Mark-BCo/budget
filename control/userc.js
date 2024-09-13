@@ -5,48 +5,53 @@ const asyncHandler = require('express-async-handler');
 const upload = require('../middleware/multer')
 
 // POST /create-user
-// Async function to create a new user
 const newUser = asyncHandler(async (req, res) => {
 
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+    }
+
     try {
-        const { username, email, password } = req.body;
 
-        if (!username || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        const dusername = await User.findOne({ username }).collation({ locale: 'en', strength: 2 }).lean().exec();
-        const demail = await User.findOne({ email }).collation({ locale: 'en', strength: 2 }).lean().exec();
-
-        if (dusername) {
+        const existingUsername = await User.findOne({ username }).lean().exec();
+        if (existingUsername) {
             return res.status(409).json({ message: 'Duplicate username' });
         }
-        if (demail) {
+
+        const existingEmail = await User.findOne({ email }).lean().exec();
+        if (existingEmail) {
             return res.status(409).json({ message: 'Duplicate email' });
         }
 
         const hashedPwd = await bcrypt.hash(password, 10);
 
-        const user = {
+        const newUser = {
             username,
             email,
             password: hashedPwd
         };
 
-        await User.create(user);
+        await User.create(newUser);
 
         res.status(201).json({ message: `New user ${username} created` });
+
     } catch (error) {
+
         console.error("Error creating user:", error);
         res.status(500).json({ message: "Internal server error" });
+
     }
-
-
-
-})
+});
 
 // PATCH /update-username
-// Async function to update username - checks for previous username and pushes username to previous username array
+// Updates and checks for previous username and pushes username to previous username array
 const updateUserName = asyncHandler(async (req, res) => {
 
     try {
@@ -90,7 +95,7 @@ const updateUserName = asyncHandler(async (req, res) => {
 })
 
 // PATCH /update-email
-// Async function to update email - checks for previous email and pushes email to previous email array
+// Updates and Checks for previous email and pushes email to previous email array
 const updateEmail = asyncHandler(async (req, res) => {
 
     try {
@@ -139,52 +144,51 @@ const updateEmail = asyncHandler(async (req, res) => {
 })
 
 // PATCH /update-userimage
-// Async function to update user profile image
 const updateUserImage = asyncHandler(async (req, res) => {
 
     // File Upload promise
     const file = await new Promise((resolve, reject) => {
-       upload.single('userImage')(req, res, (err) => {
-           if (err) {
-               reject(err);
-           } else {
-               resolve(req.file);
-           }
-       });
-   });
+        upload.single('userImage')(req, res, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(req.file);
+            }
+        });
+    });
 
-   try {
+    try {
 
-       const { id } = req.body;
+        const { id } = req.body;
 
-       console.log(id)
+        console.log(id)
 
-       const user = await User.findById(id)
+        const user = await User.findById(id)
 
-       console.log(user)
+        console.log(user)
 
-       if (!user) {
-           return res.status(404).json({ message: 'User not found' });
-       }
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-       user.userImage = {
-           data: file.buffer,
-           contentType: file.mimetype,
-       }
+        user.userImage = {
+            data: file.buffer,
+            contentType: file.mimetype,
+        }
 
-       await user.save();
+        await user.save();
 
-       res.json({ message: 'Profile picture added' });
+        res.json({ message: 'Profile picture added' });
 
-   } catch (error) {
-       console.error("Error updating profile picture", error);
-       res.status(500).json({ message: 'Internal server error' });
-   }
+    } catch (error) {
+        console.error("Error updating profile picture", error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 
 })
 
 // DELETE /delete-user
-// Async function to delete a user by ID - deletes all change logs associated with user
+// Delete a user by ID - deletes all change logs associated with user
 const deleteUser = async (req, res) => {
 
     const { id } = req.body;
@@ -217,7 +221,6 @@ const deleteUser = async (req, res) => {
 };
 
 // GET /request-users
-// async function get all users
 const getAllUsers = async (req, res) => {
 
     const users = await User.find().select('-password').lean()
@@ -229,8 +232,23 @@ const getAllUsers = async (req, res) => {
     res.json(users)
 }
 
+// DELETE /delete-all-users
+const deleteAllUsers = async (req, res) => {
 
+    try {
 
+        const result = await User.deleteMany({});
+
+        console.log(`${result.deletedCount} users deleted.`);
+
+        await watchSchema.deleteMany({})
+        await watchSchema.deleteMany({})
+
+    } catch (err) {
+
+        console.error('Error deleting users:', err);
+    }
+}
 module.exports = {
     newUser,
     updateUserName,
@@ -238,4 +256,5 @@ module.exports = {
     updateUserImage,
     deleteUser,
     getAllUsers,
+    deleteAllUsers,
 }

@@ -21,14 +21,12 @@ Backend server for budget app
 
 ## Status
 
-[x] Create a user profile
-[] Create user roles
-[x] Update a user profile
-[x] Create user routes
-[x] Get all users
-[] Get a single user
-[] json webtokens
-
+- [] CRUD operations for users
+- [] Watch database to retain user details
+- [] Delete watch details when users removes account
+- [] Notify user all details will be removed and cannot be undone
+- [] Offer user option to hold details for 3 months then removed if they dont rejoin
+- [] json webtokens
 
 ## Creators
 

@@ -9,16 +9,9 @@ const errorHandler = require('./middleware/error')
 const cookieparser = require('cookie-parser')
 const cors = require('cors')
 const corsOptions = require('./config/corsOption')
-const db = require('./config/db')
 const watchUser = require('./config/watch')
 const mongoose = require('mongoose')
-const port = process.env.port || 3600
-
-console.log(process.env.NODE_ENV)
-
-db()
-
-watchUser()
+const port = process.env.PORT || 3600
 
 app.use(logger)
 
@@ -35,14 +28,36 @@ app.use('/', express.static(path.join(__dirname, '/public')))
 
 app.use('/', require('./route/root'))
 app.use('/user', require('./route/userr'))
+app.use('/admin', require('./route/adminr'))
 
 app.all('*', handle404error);
 
 app.use(errorHandler)
 
-app.listen(port, () => {
-    console.log(`Server is running on ${port}`)
+mongoose.connect(process.env.DATABASE_URI, {       
+}).then(() => {
+    console.log('Connected to MongoDB')
+    watchUser()
+    app.listen(port, () => console.log(`Server running on port ${port}`))
+}).catch((err) => {
+    console.error('Error connecting to MongoDB:', err)
 })
+
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err)
+    logEvents(`${err.name}: ${err.message}\t${err.stack}`, 'mongoErrLog.log')
+})
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT signal received: closing MongoDB connection')
+    await mongoose.connection.close()
+    console.log('MongoDB connection closed')
+    process.exit(0)
+})
+
+// app.listen(port, () => {
+//     console.log(`Server is running on ${port}`)
+// })
 
 // mongoose.connection.once('open', () => {
 //     console.log('Connected to MongoDB')
