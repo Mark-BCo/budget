@@ -28,7 +28,6 @@ app.use('/', express.static(path.join(__dirname, '/public')))
 
 app.use('/', require('./route/root'))
 app.use('/user', require('./route/userr'))
-app.use('/admin', require('./route/adminr'))
 
 app.all('*', handle404error);
 
@@ -54,17 +53,3 @@ process.on('SIGINT', async () => {
     console.log('MongoDB connection closed')
     process.exit(0)
 })
-
-// app.listen(port, () => {
-//     console.log(`Server is running on ${port}`)
-// })
-
-// mongoose.connection.once('open', () => {
-//     console.log('Connected to MongoDB')
-//     app.listen(port, () => console.log(`Server running on port ${port}`))
-// })
-
-// mongoose.connection.on('error', err => {
-//     console.log(err)
-//     logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'mongoErrLog.log')
-// })
