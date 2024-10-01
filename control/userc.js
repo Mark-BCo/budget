@@ -7,46 +7,33 @@ const upload = require('../middleware/multer')
 // POST /create-user
 const newUser = asyncHandler(async (req, res) => {
 
-    const { username, email, password } = req.body;
+    const { username, email, password, roles } = req.body;
 
     if (!username || !email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "All fields are required" })
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: "Invalid email format" });
+        return res.status(400).json({ message: "Invalid email format" })
     }
-
+    
     try {
-
-        const existingUsername = await User.findOne({ username }).lean().exec();
+        const existingUsername = await User.findOne({ username }).lean().exec()
         if (existingUsername) {
-            return res.status(409).json({ message: 'Duplicate username' });
+            return res.status(409).json({ message: 'Duplicate username' })
         }
-
-        const existingEmail = await User.findOne({ email }).lean().exec();
+        const existingEmail = await User.findOne({ email }).lean().exec()
         if (existingEmail) {
-            return res.status(409).json({ message: 'Duplicate email' });
+            return res.status(409).json({ message: 'Duplicate email' })
         }
-
-        const hashedPwd = await bcrypt.hash(password, 10);
-
-        const newUser = {
-            username,
-            email,
-            password: hashedPwd
-        };
-
-        await User.create(newUser);
-
-        res.status(201).json({ message: `New user ${username} created` });
-
+        const hashedPwd = await bcrypt.hash(password, 10)
+        const newUser = { username, email, "password": hashedPwd, roles }
+        await User.create(newUser)
+        res.status(201).json({ message: `New user ${username} created` })
     } catch (error) {
-
         console.error("Error creating user:", error);
-        res.status(500).json({ message: "Internal server error" });
-
+        res.status(500).json({ message: "Internal server error" })
     }
 });
 
@@ -244,11 +231,14 @@ const deleteAllUsers = async (req, res) => {
         await watchSchema.deleteMany({})
         await watchSchema.deleteMany({})
 
+        res.json(result)
+
     } catch (err) {
 
         console.error('Error deleting users:', err);
     }
 }
+
 module.exports = {
     newUser,
     updateUserName,
