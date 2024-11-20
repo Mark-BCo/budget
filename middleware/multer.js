@@ -1,5 +1,4 @@
 const multer = require('multer')
-const path = require('path')
 
 // Storing the photo uploads in the disk storage
 const storage = multer.diskStorage({

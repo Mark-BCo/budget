@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const userc = require('../control/userc')
+const verifyJWT = require('../middleware/verifyJWT')
+
+router.use(verifyJWT)
 
 router.route('/create-user').post(userc.newUser)
 

@@ -49,18 +49,18 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Pre-save middleware to hash the password before saving it
-userSchema.pre('save', async function(next) {
-    if (this.isModified('password') || this.isNew) {
-        try {
-            const salt = await bcrypt.genSalt(10);
-            this.password = await bcrypt.hash(this.password, salt);
-            next();
-        } catch (err) {
-            next(err);
-        }
-    } else {
-        return next();
-    }
-});
+// userSchema.pre('save', async function(next) {
+//     if (this.isModified('password') || this.isNew) {
+//         try {
+//             const salt = await bcrypt.genSalt(10);
+//             this.password = await bcrypt.hash(this.password, salt);
+//             next();
+//         } catch (err) {
+//             next(err);
+//         }
+//     } else {
+//         return next();
+//     }
+// });
 
 module.exports = mongoose.model('User', userSchema);

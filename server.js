@@ -27,6 +27,7 @@ app.use(cookieparser())
 app.use('/', express.static(path.join(__dirname, '/public')))
 
 app.use('/', require('./route/root'))
+app.use('/auth', require('./route/authr'))
 app.use('/user', require('./route/userr'))
 
 app.all('*', handle404error);
