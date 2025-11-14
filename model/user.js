@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt'); // Assuming you'll use bcrypt for hashing passwords
+const bcrypt = require('bcrypt'); 
 
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
         unique: true,
-        index: true // Adds an index for faster lookups
+        index: true 
     },
     previousUsername: {
         type: [{ type: String }],
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        index: true, // Adds an index for faster lookups
+        index: true, 
         validate: {
             validator: function(v) {
                 return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v);
@@ -48,7 +48,6 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Pre-save middleware to hash the password before saving it
 // userSchema.pre('save', async function(next) {
 //     if (this.isModified('password') || this.isNew) {
 //         try {
