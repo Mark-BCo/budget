@@ -14,20 +14,11 @@ const login = async (req, res) => {
 
     const foundUser = await User.findOne({ username }).exec()
 
-    console.log("Found User: ", foundUser)
-
     if (!foundUser || !(foundUser.status || []).includes('active')) {
         return res.status(401).json({ message: 'Unauthorized 1' })
     }
 
-    console.log("Entered password:", password)
-    console.log("Users password:", foundUser.password)
-
     const match = await bcrypt.compare(password, foundUser.password)
-
-    console.log("Match:", match)
-    console.log("Entered password:", password)
-    console.log("Users password:", foundUser.password)
 
     if (!match) return res.status(401).json({ message: 'Unauthorized 3' })
 
@@ -35,17 +26,18 @@ const login = async (req, res) => {
         {
             "UserInfo": {
                 "username": foundUser.username,
-                "roles": foundUser.roles
+                "roles": foundUser.roles,
+                "status": foundUser.status
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '30s' }
     )
 
     const refreshToken = jwt.sign(
         { "username": foundUser.username },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '40s' }
     )
 
     // Create secure cookie with refresh token 
@@ -84,7 +76,8 @@ const refresh = (req, res) => {
                 {
                     "UserInfo": {
                         "username": foundUser.username,
-                        "roles": foundUser.roles
+                        "roles": foundUser.roles,
+                        "status": foundUser.status,
                     }
                 },
                 process.env.ACCESS_TOKEN_SECRET,

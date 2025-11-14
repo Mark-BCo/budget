@@ -1,5 +1,5 @@
 const User = require('../model/user');
-const watchSchema = require('../model/watch');
+const Income = require('../model/income')
 const bcrypt = require('bcrypt');
 const asyncHandler = require('express-async-handler');
 const upload = require('../middleware/multer');
@@ -21,7 +21,7 @@ const newUser = asyncHandler(async (req, res) => {
 
     const hashedPwd = await bcrypt.hash(password, 10);
     const newUser = { username, email, password: hashedPwd, roles };
-
+    
     await User.create(newUser);
     res.status(201).json({ message: `New user ${username} created` });
 });
@@ -94,10 +94,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     await user.deleteOne();
-    const changeLogResult = await watchSchema.deleteMany({ documentId: id });
-    console.log(`Deleted ${changeLogResult.deletedCount} change log entries for user ID ${id}`);
-
-    await watchSchema.deleteMany({});
+    await Income.deleteMany({ user: id })
 
     res.status(200).json({ message: `User ${user.username} deleted` });
 });
@@ -112,9 +109,6 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // DELETE /delete-all-users
 const deleteAllUsers = asyncHandler(async (req, res) => {
     const result = await User.deleteMany({});
-    console.log(`${result.deletedCount} users deleted.`);
-
-    await watchSchema.deleteMany({});
     res.json(result);
 });
 

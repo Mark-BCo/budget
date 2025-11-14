@@ -21,12 +21,10 @@ Backend server for budget app
 
 ## Status
 
-- [] CRUD operations for users
-- [] Watch database to retain user details
-- [] Delete watch details when users removes account
-- [] Notify user all details will be removed and cannot be undone
-- [] Offer user option to hold details for 3 months then removed if they dont rejoin
-- [] json webtokens
+- [x] CRUD operations for users
+- [x] Watch database to retain user details
+- [x] Delete watch details when users removes account
+- [x] json webtokens
 
 ## Creators
 

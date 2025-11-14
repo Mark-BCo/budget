@@ -9,7 +9,6 @@ const errorHandler = require('./middleware/error')
 const cookieparser = require('cookie-parser')
 const cors = require('cors')
 const corsOptions = require('./config/corsOption')
-const watchUser = require('./config/watch')
 const mongoose = require('mongoose')
 const port = process.env.PORT || 3600
 
@@ -29,6 +28,7 @@ app.use('/', express.static(path.join(__dirname, '/public')))
 app.use('/', require('./route/root'))
 app.use('/auth', require('./route/authr'))
 app.use('/user', require('./route/userr'))
+app.use('/income', require('./route/incomer'))
 
 app.all('*', handle404error);
 
@@ -37,7 +37,6 @@ app.use(errorHandler)
 mongoose.connect(process.env.DATABASE_URI, {       
 }).then(() => {
     console.log('Connected to MongoDB')
-    watchUser()
     app.listen(port, () => console.log(`Server running on port ${port}`))
 }).catch((err) => {
     console.error('Error connecting to MongoDB:', err)
