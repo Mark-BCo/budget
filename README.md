@@ -22,8 +22,6 @@ Backend server for budget app
 ## Status
 
 - [x] CRUD operations for users
-- [x] Watch database to retain user details
-- [x] Delete watch details when users removes account
 - [x] json webtokens
 
 ## Creators
